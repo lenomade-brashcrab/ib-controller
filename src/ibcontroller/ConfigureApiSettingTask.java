@@ -6,13 +6,15 @@ import javax.swing.*;
 
 class ConfigureApiSettingTask implements Runnable {
     private final boolean readOnlyApi;
+    private final boolean bypassOrderPrecautions;
     private final int apiPort;
     private final boolean isGateway;
 
-    ConfigureApiSettingTask(boolean isGateway, int apiPort, boolean readOnlyApi) {
+    ConfigureApiSettingTask(boolean isGateway, int apiPort, boolean readOnlyApi, boolean bypassOrderPrecautions) {
         this.isGateway = isGateway;
         this.apiPort = apiPort;
         this.readOnlyApi = readOnlyApi;
+        this.bypassOrderPrecautions = bypassOrderPrecautions;
     }
 
     @Override
@@ -24,7 +26,7 @@ class ConfigureApiSettingTask implements Runnable {
             GuiExecutor.instance().execute(new Runnable(){
                 @Override
                 public void run() {
-                    configure(configDialog, apiPort, readOnlyApi);
+                    configure(configDialog, apiPort, readOnlyApi, bypassOrderPrecautions);
                 }
             });
 
@@ -33,7 +35,7 @@ class ConfigureApiSettingTask implements Runnable {
         }
     }
 
-    private void configure(final JDialog configDialog, final int apiPort, final boolean readOnlyApi) {
+    private void configure(final JDialog configDialog, final int apiPort, final boolean readOnlyApi, final boolean bypassOrderPrecautions) {
         try {
             Utils.logToConsole("Performing Api setting configuration");
 
@@ -41,6 +43,7 @@ class ConfigureApiSettingTask implements Runnable {
                 // older versions of TWS don't have the Settings node below the API node
                 Utils.selectConfigSection(configDialog, new String[] {"API"});
 
+            // set API port
             if (apiPort != 0) {
                 Component comp = SwingUtils.findComponent(configDialog, "Socket port");
                 if (comp == null)
@@ -69,17 +72,37 @@ class ConfigureApiSettingTask implements Runnable {
                 }
             }
 
-            JCheckBox cb = SwingUtils.findCheckBox(configDialog, "Read-Only API");
-            if (cb == null) throw new IBControllerException("could not find Read-Only API checkbox");
+            // disable ReadOnly API
+            String text = "Read-Only API";
+            JCheckBox cb = SwingUtils.findCheckBox(configDialog, text);
+            if (cb == null) throw new IBControllerException("could not find " + text + " checkbox");
 
             if(cb.isSelected() && readOnlyApi) {
                 cb.setSelected(true);
-                Utils.logToConsole("Select and enable Read-Only API");
+                Utils.logToConsole("Select and enable " + text);
             } else {
                 cb.setSelected(false);
-                Utils.logToConsole("Unselect and disable Read-Only API");
+                Utils.logToConsole("Unselect and disable " + text);
             }
 
+            // disable Order Precautions
+            if (!Utils.selectConfigSection(configDialog, new String[]{"API", "Precautions"}))
+                // older versions of TWS don't have the Settings node below the API node
+                Utils.selectConfigSection(configDialog, new String[] {"API"});
+
+            text = "Bypass Order Precautions for API Orders";
+            cb = SwingUtils.findCheckBox(configDialog, text);
+            if (cb == null) throw new IBControllerException("could not find " + text + " checkbox");
+
+            if (cb.isSelected() && !bypassOrderPrecautions) {
+                cb.setSelected(false);
+                Utils.logToConsole("Unselect and disable " + text);
+            } else {
+                cb.setSelected(false);
+                Utils.logToConsole("Select and enable " + text);
+            }
+
+            // apply settings and close dialog
             SwingUtils.clickButton(configDialog, "OK");
 
             configDialog.setVisible(false);
