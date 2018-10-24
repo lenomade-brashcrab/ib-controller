@@ -188,6 +188,26 @@ class Utils {
         return true;
     }
 
+    /**
+     * Convenient method for specifying fallback path if configuration path is not present
+     * @param configDialog
+     * the Global Configuration dialog
+     * @param path
+     * the path to the required configuration section in the Global Configuration dialog
+     * @param fallbackPath
+     * fallback path to the required configuration section in the Global Configuration dialog
+     * @return
+     * true if the specified section can be found; otherwise false
+     * @throws IBControllerException
+     * a UI component could not be found
+     * @throws IllegalStateException
+     * the method has not been called on the SWing event dispatch thread
+     */
+    static boolean selectConfigSection(final JDialog configDialog, final String[] path, final String[] fallbackPath) throws IBControllerException, IllegalStateException {
+        return selectConfigSection(configDialog, path) ||
+               selectConfigSection(configDialog, fallbackPath);
+    }
+
     static void showTradesLogWindow() {
             MyCachedThreadPool.getInstance().execute(new Runnable () {
                 @Override public void run() {invokeMenuItem(MainWindowManager.mainWindowManager().getMainWindow(), new String[] {"Account", "Trade Log"});}
