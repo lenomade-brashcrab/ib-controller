@@ -38,6 +38,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.JRadioButton;
 import javax.swing.JSeparator;
 import javax.swing.JTextField;
+import javax.swing.JToggleButton;
 import javax.swing.JTree;
 import javax.swing.MenuElement;
 import javax.swing.tree.TreeModel;
@@ -170,6 +171,25 @@ class SwingUtils {
         while (iter.hasNext()) {
             Component component = iter.next();
             if (component instanceof JRadioButton && text.equals(((JRadioButton)component).getText())) return (JRadioButton)component;
+        }
+        return null;
+    }
+
+    /**
+     * Traverses a container hierarchy and returns the toggle button with
+     * the given text
+     * @param container
+     *  the Container to search in
+     * @param text
+     *  the label of the button to be found
+     * @return
+     *  the toggle button, if was found;  otherwise null
+     */
+    static JToggleButton findToggleButton(Container container, String text) {
+        ComponentIterator iter = new ComponentIterator(container);
+        while (iter.hasNext()) {
+            Component component = iter.next();
+            if (component instanceof JToggleButton && text.equals(((JToggleButton)component).getText())) return (JToggleButton)component;
         }
         return null;
     }
@@ -510,6 +530,25 @@ class SwingUtils {
         if (rb.isSelected()) return true;
 
         rb.doClick();
+        return true;
+    }
+
+    /**
+     * Selects the specified JToggleButton.
+     * @param window
+     * the window in which to search for the required JToggleButton
+     * @param buttonText
+     * the label for the required JToggleButton
+     * @return
+     * true if the JToggleButton  was found; otherwise false
+     */
+    static boolean setToggleButtonSelected(Window window, String buttonText) {
+        final JToggleButton tb = findToggleButton(window, buttonText);
+        if (tb == null) return false;
+
+        if (tb.isSelected()) return true;
+
+        tb.doClick();
         return true;
     }
 
