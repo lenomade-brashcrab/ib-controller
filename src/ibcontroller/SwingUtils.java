@@ -22,6 +22,8 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Window;
 import java.awt.event.WindowEvent;
+import java.util.Arrays;
+import java.util.LinkedList;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -50,11 +52,13 @@ class SwingUtils {
      *  The window containing the button.
      * @param buttonText
      *  The button's label.
+     * @param buttonTextAlternatives
+     *  Optionally the button's alternative labels.
      * @return
      *  true if the button was found;  false if the button was not found
      */
-    static boolean clickButton(final Window window, final String buttonText) {
-        final JButton button = findButton(window, buttonText);
+    static boolean clickButton(final Window window, final String buttonText, String... buttonTextAlternatives) {
+        final JButton button = findButton(window, buttonText, buttonTextAlternatives);
         if (button == null) return false;
 
         if (! button.isEnabled()) {
@@ -70,19 +74,23 @@ class SwingUtils {
 
     /**
      * Traverses a container hierarchy and returns the button with
-     * the given text.
+     * the given text or one of alternative texts
      * @param container
      *  the Container to search in
      * @param text
      *  the label of the button to be found
+     * @param textAlternatives
+     *  optionally alternative label of the button to be found
      * @return
      *  the button, if was found;  otherwise null
      */
-    static JButton findButton(Container container, String text) {
+    static JButton findButton(Container container, String text, String... textAlternatives) {
+        LinkedList<String> allAlternatives = new LinkedList<>(Arrays.asList(textAlternatives));
+        allAlternatives.addFirst(text);
         ComponentIterator iter = new ComponentIterator(container);
         while (iter.hasNext()) {
             Component component = iter.next();
-            if (component instanceof JButton && text.equals(((JButton)component).getText())) return (JButton)component;
+            if (component instanceof JButton && allAlternatives.contains(((JButton)component).getText())) return (JButton)component;
         }
         return null;
     }
