@@ -39,6 +39,9 @@ final class LoginFrameHandler extends AbstractLoginHandler {
     protected final boolean initialise(final Window window, int eventID) throws IBControllerException {
         setTradingModeCombo(window);
 
+        // Ensure store settings on server is visible after 974
+        SwingUtils.clickButton(window, "More Options");
+
         final String STORE_SETTINGS_ON_SERVER_CHECKBOX = "Use/store settings on server";
         if (! SwingUtils.setCheckBoxSelected(
                 window,
