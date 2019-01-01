@@ -80,6 +80,11 @@ public abstract class AbstractLoginHandler implements WindowHandler {
                                             final String value) throws IBControllerException {
         if (! SwingUtils.setTextField(window, credentialIndex, value)) throw new IBControllerException(credentialName);
     }
+
+    protected final void setIBApiCredentials(Window window, int firstIndex) throws IBControllerException {
+        setCredential(window, "IBAPI user name", firstIndex, LoginManager.loginManager().IBAPIUserName());
+        setCredential(window, "IBAPI password", firstIndex + 1, LoginManager.loginManager().IBAPIPassword());
+    }
     
     protected final void setTradingModeCombo(final Window window) {
         if (SwingUtils.findLabel(window, "Trading Mode") != null)  {

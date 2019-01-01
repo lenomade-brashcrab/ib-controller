@@ -65,8 +65,7 @@ final class LoginFrameHandler extends AbstractLoginHandler {
     
     @Override
     protected final boolean setFields(Window window, int eventID) throws IBControllerException {
-        setCredential(window, "IBAPI user name", 0, LoginManager.loginManager().IBAPIUserName());
-        setCredential(window, "IBAPI password", 1, LoginManager.loginManager().IBAPIPassword());
+        setIBApiCredentials(window, 0);
         return true;
     }
     

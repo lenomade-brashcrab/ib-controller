@@ -20,7 +20,7 @@ package ibcontroller;
 
 import java.awt.Window;
 import javax.swing.JFrame;
-import javax.swing.JRadioButton;
+import javax.swing.JToggleButton;
 
 final class GatewayLoginFrameHandler extends AbstractLoginHandler {
     
@@ -29,7 +29,7 @@ final class GatewayLoginFrameHandler extends AbstractLoginHandler {
         if (! (window instanceof JFrame)) return false;
 
         return (SwingUtils.titleContains(window, "IB Gateway") &&
-               (SwingUtils.findButton(window, "Login") != null));
+               (SwingUtils.findButton(window, "Login", "Log In", "Paper Log In") != null));
     }
 
     @Override
@@ -87,15 +87,19 @@ final class GatewayLoginFrameHandler extends AbstractLoginHandler {
         if (Settings.settings().getBoolean("FIX", false)) {
             setCredential(window, "FIX user name", 0, LoginManager.loginManager().FIXUserName());
             setCredential(window, "FIX password", 1, LoginManager.loginManager().FIXPassword());
-            setCredential(window, "IBAPI user name", 3, LoginManager.loginManager().IBAPIUserName());
-            setCredential(window, "IBAPI password", 4, LoginManager.loginManager().IBAPIPassword());
+            setIBApiCredentialsOnFIX(window);
         } else {
-            setCredential(window, "IBAPI user name", 0, LoginManager.loginManager().IBAPIUserName());
-            setCredential(window, "IBAPI password", 1, LoginManager.loginManager().IBAPIPassword());
+            setIBApiCredentials(window, 0);
         }
         return true;
     }
-    
+
+    private void setIBApiCredentialsOnFIX(Window window) throws IBControllerException {
+        boolean isBefore974 = SwingUtils.findRadioButton(window, "FIX CTCI") != null;
+        // There is no additional text field between credentials text fields pairs after 974
+        setIBApiCredentials(window, isBefore974 ? 3 : 2);
+    }
+
     private void selectGatewayMode(Window window) throws IBControllerException {
         if (Settings.settings().getBoolean("FIX", false)) {
             switchToFIX(window);
@@ -105,15 +109,17 @@ final class GatewayLoginFrameHandler extends AbstractLoginHandler {
     }
     
     private void switchToFIX(Window window) throws IBControllerException {
-        JRadioButton button = SwingUtils.findRadioButton(window, "FIX CTCI");
-        if (button == null) throw new IBControllerException("FIX CTCI radio button");
+        // JRadioButton is subclass of JToggleButton so it should work for older radio buttons too
+        JToggleButton button = SwingUtils.findToggleButton(window, "FIX CTCI");
+        if (button == null) throw new IBControllerException("FIX CTCI button");
         
         if (! button.isSelected()) button.doClick();
     }
     
     private void switchToIBAPI(Window window) throws IBControllerException {
-        JRadioButton button = SwingUtils.findRadioButton(window, "IB API");
-        if (button == null) button = SwingUtils.findRadioButton(window, "TWS/API") ;
+        // JRadioButton is subclass of JToggleButton so it should work for older radio buttons too
+        JToggleButton button = SwingUtils.findToggleButton(window, "IB API");
+        if (button == null) button = SwingUtils.findToggleButton(window, "TWS/API") ;
         if (button == null) throw new IBControllerException("IB API radio button");
         
         if (! button.isSelected()) button.doClick();
