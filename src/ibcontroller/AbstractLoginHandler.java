@@ -87,7 +87,15 @@ public abstract class AbstractLoginHandler implements WindowHandler {
     }
     
     protected final void setTradingModeCombo(final Window window) {
-        if (SwingUtils.findLabel(window, "Trading Mode") != null)  {
+        // There is new component for choosing trading mode made from toggle buttons in TWS version 974
+        if (SwingUtils.findToggleButton(window, "Live Trading") != null) {
+            String tradingMode = TradingModeManager.tradingModeManager().getTradingMode();
+            boolean isLiveTradingMode = tradingMode.equalsIgnoreCase(TradingModeManager.TRADING_MODE_LIVE);
+            if (SwingUtils.setToggleButtonSelected(window, isLiveTradingMode ? "Live Trading" : "Paper Trading")) {
+                Utils.logToConsole("Setting Trading mode = " + tradingMode);
+            }
+        }
+        else if (SwingUtils.findLabel(window, "Trading Mode") != null) {
             JComboBox<?> tradingModeCombo;
             if (Settings.settings().getBoolean("FIX", false)) {
                 tradingModeCombo = SwingUtils.findComboBox(window, 1);
@@ -104,20 +112,6 @@ public abstract class AbstractLoginHandler implements WindowHandler {
                     tradingModeCombo.setSelectedItem("Paper Trading");
                 }
             }
-        } else {
-            setTradingModeComboAfter974(window);
         }
     }
-
-    // There is new component for choosing trading mode made from toggle buttons in TWS version 974
-    private void setTradingModeComboAfter974(final Window window) {
-        if (SwingUtils.findToggleButton(window, "Live Trading") != null) {
-            String tradingMode = TradingModeManager.tradingModeManager().getTradingMode();
-            boolean isLiveTradingMode = tradingMode.equalsIgnoreCase(TradingModeManager.TRADING_MODE_LIVE);
-            if (SwingUtils.setToggleButtonSelected(window, isLiveTradingMode ? "Live Trading" : "Paper Trading")) {
-                Utils.logToConsole("Setting Trading mode = " + tradingMode);
-            }
-        }
-    }
-    
 }
